@@ -21,62 +21,63 @@ st.markdown("""
 
 # --- Helper function for RAM/cores/walltime logic ---
 def advanced_requirements():
+    suggestion = None
     ram = st.radio("Do you need more than 512 GB of RAM?", ["Yes", "No"])
     if ram == "Yes":
-        st.success("👉 Suggested platform: **NSF ACCESS**")
-        return
-
-    cores_192 = st.radio("Do you need more than 192 cores?", ["Yes", "No"])
-    if cores_192 == "Yes":
-        st.success("👉 Suggested platform: **NSF ACCESS**")
-        return
-
-    cores_16 = st.radio("Do you need more than 16 cores?", ["Yes", "No"])
-    if cores_16 == "Yes":
-        walltime_240 = st.radio("Do you need walltime greater than 240 hours?", ["Yes", "No"])
-        if walltime_240 == "Yes":
-            st.success("👉 Suggested platform: **NSF ACCESS**")
-        else:
-            gui = st.radio("Do you require a GUI?", ["Yes", "No"])
-            if gui == "Yes":
-                st.success("👉 Suggested platform: **NSF ACCESS - JetStream2**")
-            else:
-                walltime_72 = st.radio("Do you need walltime greater than 72 hours?", ["Yes", "No"])
-                if walltime_72 == "Yes":
-                    st.success("👉 Suggested platform: **Augie batch w/ long qos**")
-                else:
-                    st.success("👉 Suggested platform: **Augie Batch**")
+        suggestion = "NSF ACCESS"
     else:
-        st.success("👉 Suggested platform: **Possible OSG - See CRCF**")
-
+        cores_192 = st.radio("Do you need more than 192 cores?", ["Yes", "No"])
+        if cores_192 == "Yes":
+            suggestion = "NSF ACCESS"
+        else:
+            cores_16 = st.radio("Do you need more than 16 cores?", ["Yes", "No"])
+            if cores_16 == "Yes":
+                walltime_240 = st.radio("Do you need walltime greater than 240 hours?", ["Yes", "No"])
+                if walltime_240 == "Yes":
+                    suggestion = "NSF ACCESS"
+                else:
+                    gui = st.radio("Do you require a GUI?", ["Yes", "No"])
+                    if gui == "Yes":
+                        suggestion = "NSF ACCESS - JetStream2"
+                    else:
+                        walltime_72 = st.radio("Do you need walltime greater than 72 hours?", ["Yes", "No"])
+                        if walltime_72 == "Yes":
+                            suggestion = "Augie batch w/ long qos"
+                        else:
+                            suggestion = "Augie Batch"
+            else:
+                suggestion = "Possible OSG - See CRCF"
+    return suggestion
 
 # --- Logic Tree Start ---
 itar_phi = st.radio("Does your research involve ITAR or PHI?", ["Yes", "No"])
+suggestion = None
 
 if itar_phi == "Yes":
-    st.success("👉 Suggested platform: **See UTS**")
-
+    suggestion = "See UTS"
 else:
     open_source = st.radio("Does your research use open source software?", ["Yes", "No"])
-
     if open_source == "Yes":
-        advanced_requirements()
-
+        suggestion = advanced_requirements()
     else:
         software = st.selectbox("Which software are you using?", ["MATLAB", "COMSOL", "ANSYS", "Other"])
-
         if software == "MATLAB":
-            advanced_requirements()
-
+            suggestion = advanced_requirements()
         elif software == "COMSOL":
             paid_group = st.radio("Are you a member of a paid COMSOL group?", ["Yes", "No"])
             if paid_group == "Yes":
-                advanced_requirements()
+                suggestion = advanced_requirements()
             else:
-                st.success("👉 Suggested platform: **See CRCF**")
-
+                suggestion = "See CRCF"
         elif software == "ANSYS":
-            st.success("👉 Suggested platform: **vDesktop**")
+            suggestion = "vDesktop"
+        else:
+            suggestion = "See CRCF"
 
-        else:  # Other
-            st.success("👉 Suggested platform: **See CRCF**")
+# --- Show result only when button is clicked ---
+if st.button("Get Suggested Platform"):
+    if suggestion:
+        st.success(f"👉 Suggested platform: **{suggestion}**")
+    else:
+        st.warning("Please answer all questions to get a suggestion.")
+
