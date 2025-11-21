@@ -19,6 +19,17 @@ st.markdown("""
 - Augie Batch  
 """)
 
+with st.expander("What is this doing? (click to expand)"):
+    st.markdown(
+        """
+        **How it works (v1):** The logic behind this app is based
+        on a decision flowchart developed by CRCF in September 2025.
+        This app implements the flowchart by having users input various
+        aspects of their project.
+        """
+    )
+
+
 # --- Helper function for RAM/cores/walltime logic ---
 def advanced_requirements():
     suggestion = None
